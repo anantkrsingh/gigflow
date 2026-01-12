@@ -1,9 +1,7 @@
-import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
 import { Toaster } from "./components/ui/toaster";
-import { socket } from "./lib/socket";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";

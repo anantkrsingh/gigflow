@@ -153,7 +153,7 @@ export default function GigDetails() {
                           </span>
                         </div>
                         {bid.status === "pending" && (
-                          <HireButton bidId={bid._id} gigId={gig._id} />
+                          <HireButton bidId={bid._id} />
                         )}
                       </div>
                     </Card>
@@ -208,7 +208,7 @@ export default function GigDetails() {
   );
 }
 
-function HireButton({ bidId, gigId }: { bidId: string; gigId: string }) {
+function HireButton({ bidId }: { bidId: string }) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { toast } = useToast();
