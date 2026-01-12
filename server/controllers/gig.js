@@ -4,7 +4,7 @@ const Bid = require("../models/bid");
 exports.getAllGigs = async (req, res) => {
   try {
     const { search } = req.query;
-    const query = { status: "open" };
+    const query = {  };
     
     if (search) {
       query.title = { $regex: search, $options: "i" };
