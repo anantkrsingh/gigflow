@@ -84,11 +84,16 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || "Login failed";
       })
+      .addCase(checkAuth.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(checkAuth.fulfilled, (state, action) => {
+        state.loading = false;
         state.user = action.payload.user;
         state.isAuthenticated = true;
       })
       .addCase(checkAuth.rejected, (state) => {
+        state.loading = false;
         state.user = null;
         state.isAuthenticated = false;
       });

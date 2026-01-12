@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppSelector } from "@/store/hooks";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { checkAuth } from "@/store/authSlice";
 import { createGig } from "@/store/gigSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,14 +16,18 @@ export default function CreateGig() {
   const [budget, setBudget] = useState("");
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, loading: authLoading } = useAppSelector((state) => state.auth);
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    dispatch(checkAuth());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
       navigate("/login");
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +52,16 @@ export default function CreateGig() {
       });
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">

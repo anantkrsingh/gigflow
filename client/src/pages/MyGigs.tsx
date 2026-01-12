@@ -1,27 +1,51 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { fetchGigs } from "@/store/gigSlice";
+import { checkAuth } from "@/store/authSlice";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import api from "@/lib/api";
 
 export default function MyGigs() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { user } = useAppSelector((state) => state.auth);
-  const { gigs, loading } = useAppSelector((state) => state.gigs);
+  const { user, loading: authLoading } = useAppSelector((state) => state.auth);
   const [myGigs, setMyGigs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    dispatch(fetchGigs());
+    dispatch(checkAuth());
   }, [dispatch]);
 
   useEffect(() => {
-    if (user && gigs.length > 0) {
-      const filtered = gigs.filter((gig) => gig.ownerId._id === user._id);
-      setMyGigs(filtered);
+    const fetchMyGigs = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const response = await api.get("/gigs/my-gigs");
+        setMyGigs(response.data.gigs);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (!authLoading) {
+      fetchMyGigs();
     }
-  }, [user, gigs]);
+  }, [user, authLoading]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return (

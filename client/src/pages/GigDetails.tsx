@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { checkAuth } from "@/store/authSlice";
 import { fetchBidsByGig, createBid, hireBid } from "@/store/bidSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,12 +17,16 @@ export default function GigDetails() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { bids, loading } = useAppSelector((state) => state.bids);
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user, loading: authLoading } = useAppSelector((state) => state.auth);
   const [gig, setGig] = useState<any>(null);
   const [message, setMessage] = useState("");
   const [price, setPrice] = useState("");
   const [isOwner, setIsOwner] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
 
   useEffect(() => {
     const fetchGig = async () => {
@@ -52,10 +57,10 @@ export default function GigDetails() {
         });
       }
     };
-    if (id) {
+    if (id && !authLoading) {
       fetchGig();
     }
-  }, [id, user, dispatch, navigate, toast]);
+  }, [id, user, authLoading, dispatch, navigate, toast]);
 
   const handleBid = async () => {
     if (!isAuthenticated) {

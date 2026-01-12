@@ -1,45 +1,51 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAppSelector } from "@/store/hooks";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { checkAuth } from "@/store/authSlice";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
 
 export default function MyBids() {
   const navigate = useNavigate();
-  const { user } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+  const { user, loading: authLoading } = useAppSelector((state) => state.auth);
   const [bids, setBids] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
+
+  useEffect(() => {
     const fetchMyBids = async () => {
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       try {
-        const gigsResponse = await api.get("/gigs");
-        const allGigs = gigsResponse.data.gigs;
-        const allBids: any[] = [];
-        
-        for (const gig of allGigs) {
-          try {
-            const bidsResponse = await api.get(`/bids/${gig._id}`);
-            const gigBids = bidsResponse.data.bids.filter(
-              (bid: any) => bid.freelancerId._id === user._id
-            );
-            allBids.push(...gigBids.map((bid: any) => ({ ...bid, gigTitle: gig.title, gigId: gig._id })));
-          } catch (error) {
-            // Ignore errors for gigs where user doesn't have access
-          }
-        }
-        
-        setBids(allBids);
+        const response = await api.get("/bids/my-bids");
+        setBids(response.data.bids);
       } catch (error) {
         console.error(error);
       } finally {
         setLoading(false);
       }
     };
-    fetchMyBids();
-  }, [user]);
+    if (!authLoading) {
+      fetchMyBids();
+    }
+  }, [user, authLoading]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -79,7 +85,7 @@ export default function MyBids() {
             {bids.map((bid) => (
               <Card key={bid._id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <CardTitle className="text-xl">{bid.gigTitle || "Gig"}</CardTitle>
+                  <CardTitle className="text-xl">{bid.gigId?.title || "Gig"}</CardTitle>
                   <CardDescription>
                     Status: <span className={`font-semibold ${
                       bid.status === "hired" ? "text-green-600" :
@@ -94,7 +100,7 @@ export default function MyBids() {
                   <p className="text-sm text-gray-600 mb-2">{bid.message}</p>
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-semibold">${bid.price}</span>
-                    <Link to={`/gig/${typeof bid.gigId === 'string' ? bid.gigId : bid.gigId._id}`}>
+                    <Link to={`/gig/${bid.gigId._id || bid.gigId}`}>
                       <Button variant="outline">View Gig</Button>
                     </Link>
                   </div>

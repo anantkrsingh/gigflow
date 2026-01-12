@@ -14,14 +14,19 @@ import api from "@/lib/api";
 export default function Home() {
   const dispatch = useAppDispatch();
   const { gigs, loading } = useAppSelector((state) => state.gigs);
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, loading: authLoading } = useAppSelector((state) => state.auth);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    dispatch(fetchGigs());
     dispatch(checkAuth());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!authLoading) {
+      dispatch(fetchGigs());
+    }
+  }, [dispatch, authLoading]);
 
   const handleLogout = async () => {
     try {

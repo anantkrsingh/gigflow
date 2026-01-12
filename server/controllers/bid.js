@@ -70,6 +70,20 @@ exports.getBidsByGig = async (req, res) => {
   }
 };
 
+exports.getMyBids = async (req, res) => {
+  try {
+    const bids = await Bid.find({ freelancerId: req.user._id })
+      .populate("freelancerId", "name email")
+      .populate("gigId", "title description budget status ownerId")
+      .sort({ createdAt: -1 });
+    
+    return res.status(200).json({ bids });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 exports.hireBid = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();

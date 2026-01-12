@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { authenticate } = require("../middlewares/auth");
-const { createBid, getBidsByGig, hireBid } = require("../controllers/bid");
+const { createBid, getBidsByGig, getMyBids, hireBid } = require("../controllers/bid");
 const { body } = require("express-validator");
 const { isRequestValidated } = require("../middlewares/validator");
 
@@ -26,6 +26,8 @@ router.post(
   isRequestValidated,
   createBid
 );
+
+router.get("/my-bids", authenticate, getMyBids);
 
 router.get("/:gigId", authenticate, getBidsByGig);
 

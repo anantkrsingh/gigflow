@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const { authenticate } = require("../middlewares/auth");
-const { getAllGigs, createGig } = require("../controllers/gig");
+const { getAllGigs, getMyGigs, createGig } = require("../controllers/gig");
 const { body } = require("express-validator");
 const { isRequestValidated } = require("../middlewares/validator");
 
 router.get("/", getAllGigs);
+
+router.get("/my-gigs", authenticate, getMyGigs);
 
 router.post(
   "/",
