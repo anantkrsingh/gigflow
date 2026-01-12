@@ -32,3 +32,5 @@ const bidSchema = new mongoose.Schema(
 const Bid = mongoose.model("Bid", bidSchema);
 module.exports = Bid;
 
+
+
