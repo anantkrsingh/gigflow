@@ -33,11 +33,10 @@ app.use("/api/bids", bidRoutes);
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
-    credentials: true,
-  },
+    origin: ["http://localhost:5173", "https://gigflow-delta.vercel.app"],
+    credentials: true
+  }
 });
-
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
